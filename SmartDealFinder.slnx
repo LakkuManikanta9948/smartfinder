@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Backend/">
+    <Project Path="Backend/SmartDealFinder.Application/SmartDealFinder.Application.csproj" />
+    <Project Path="Backend/SmartDealFinder.Domain/SmartDealFinder.Domain.csproj" />
+    <Project Path="Backend/SmartDealFinder.Infrastructure/SmartDealFinder.Infrastructure.csproj" />
+    <Project Path="Backend/SmartDealFinder.Web/SmartDealFinder.Web.csproj" />
+  </Folder>
+</Solution>

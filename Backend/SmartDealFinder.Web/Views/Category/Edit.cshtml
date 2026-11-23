@@ -1,0 +1,40 @@
+@using SmartDealFinder.Domain.Entities
+@model Category
+@{
+    ViewData["Title"] = "Edit Category";
+}
+<div class="container mt-4">
+    <h1>Edit Category</h1>
+    <form method="post" asp-action="Edit">
+        <input type="hidden" asp-for="Id" />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="Name"></label>
+                    <input class="form-control" asp-for="Name" />
+                    <span class="text-danger" asp-validation-for="Name"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Slug"></label>
+                    <input class="form-control" asp-for="Slug" />
+                    <span class="text-danger" asp-validation-for="Slug"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="IconClass"></label>
+                    <input class="form-control" asp-for="IconClass" />
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="ParentId"></label>
+                    <input class="form-control" asp-for="ParentId" />
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" asp-for="Active" /> <label class="form-check-label" asp-for="Active">Active</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group mb-3">
+            <button class="btn btn-primary" type="submit">Save</button>
+            <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+        </div>
+    </form>
+</div>
