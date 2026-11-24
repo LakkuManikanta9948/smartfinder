@@ -1,0 +1,21 @@
+@using SmartDealFinder.Models.DTO;
+@model HealthDto
+@{
+    ViewData["Title"] = "Health";
+}
+<div class="container mt-4">
+    <h1>System Health</h1>
+    <p class="text-muted">Checked at: @Model.CheckedAt.ToString("yyyy-MM-dd HH:mm:ss") UTC</p>
+    <div class="card">
+        <div class="card-header">Status</div>
+        <div class="card-body">
+            <p><strong>Overall:</strong> <span class="badge bg-@(Model.Status == "Healthy" ? "success" : "warning")">@Model.Status</span></p>
+            <p><strong>MySQL Database (smart_deal_finder):</strong>
+                <span class="badge bg-@(Model.DatabaseConnected ? "success" : "danger")">
+                    @(Model.DatabaseConnected ? "Connected" : "Not connected")
+                </span>
+            </p>
+        </div>
+    </div>
+    <a class="btn btn-secondary mt-3" asp-action="Index">Refresh</a>
+</div>

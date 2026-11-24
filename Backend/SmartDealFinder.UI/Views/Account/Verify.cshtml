@@ -1,0 +1,32 @@
+@model VerifyOtpInput
+@{
+    ViewData["Title"] = "Verify your phone";
+}
+<section class="auth-shell">
+    <div class="auth-card">
+        <p class="eyebrow">PHONE VERIFICATION</p>
+        <h1>Check your messages</h1>
+        <p class="muted">Enter the six-digit code sent to <strong>@Model.PhoneNumber</strong>. It expires in five minutes.</p>
+        @if (!string.IsNullOrWhiteSpace(Model.DevelopmentCode))
+        {
+            <div class="alert alert-warning"><strong>Development sample OTP:</strong> <code>@Model.DevelopmentCode</code>. This code is only displayed in Development mode.</div>
+        }
+        <form asp-action="Verify" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input asp-for="PhoneNumber" type="hidden" />
+            <input asp-for="DisplayName" type="hidden" />
+            <input asp-for="ReturnUrl" type="hidden" />
+            <label asp-for="Code" class="form-label">Verification code</label>
+            <input asp-for="Code" class="form-control form-control-lg otp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" autofocus />
+            <span asp-validation-for="Code" class="text-danger"></span>
+            <button type="submit" class="btn btn-brand w-100 mt-4">Verify and continue</button>
+        </form>
+        <form asp-action="RequestCode" method="post" class="mt-3">
+            <input name="PhoneNumber" value="@Model.PhoneNumber" type="hidden" />
+            <input name="DisplayName" value="@Model.DisplayName" type="hidden" />
+            <input name="ReturnUrl" value="@Model.ReturnUrl" type="hidden" />
+            <button type="submit" class="btn btn-link p-0">Resend code</button>
+        </form>
+    </div>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

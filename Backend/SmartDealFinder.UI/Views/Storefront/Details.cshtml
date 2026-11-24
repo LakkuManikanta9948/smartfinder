@@ -1,0 +1,55 @@
+@model Product
+@{
+    ViewData["Title"] = Model.Title;
+}
+<section class="detail-shell">
+    <div class="detail-visual">
+        @if (Model.Images.Count > 0)
+        {
+            var primaryImage = Model.Images.OrderBy(image => image.SortOrder).First();
+            <img id="product-primary-image" src="@primaryImage.ImageUrl" alt="@(primaryImage.AltText ?? Model.Title)" />
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.ImageUrl)) { <img id="product-primary-image" src="@Model.ImageUrl" alt="@Model.Title" /> }
+        else { <span class="image-placeholder detail-placeholder">SC</span> }
+    </div>
+    <div class="detail-copy">
+        <p class="eyebrow">@(Model.Category?.Name ?? "SMARTCOMPARE CATALOG")</p>
+        <h1>@Model.Title</h1>
+        <p class="detail-brand">@(Model.Brand?.Name ?? "Brand information not provided")</p>
+        @if (Model.Rating.HasValue) { <p class="rating-line">★ @Model.Rating.Value.ToString("0.0") @if (Model.ReviewCount.HasValue) { <span>(@Model.ReviewCount.Value.ToString("N0") reviews)</span> }</p> }
+        <p class="detail-description">@(Model.Description ?? "Product details will be updated when verified information becomes available.")</p>
+        <div class="detail-price"><span>Catalog reference price</span><strong>₹@Model.CurrentPrice.ToString("N0")</strong><small>Reference information only—not a live retailer quote.</small></div>
+        <a class="btn btn-brand btn-lg" asp-controller="Storefront" asp-action="Compare" asp-route-id="@Model.Id">Compare with other platforms <span aria-hidden="true">→</span></a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="product-actions-user">
+                <form asp-controller="UserDashboard" asp-action="AddToWishlist" method="post"><input type="hidden" name="productId" value="@Model.Id" /><button class="btn btn-outline-brand" type="submit">Save to wishlist</button></form>
+                <form asp-controller="UserDashboard" asp-action="AddPriceAlert" method="post" class="price-alert-form"><input type="hidden" name="ProductId" value="@Model.Id" /><label for="target-price">Alert me below</label><div><span>₹</span><input id="target-price" name="TargetPrice" type="number" min="0.01" step="0.01" required placeholder="Target price" /><button class="btn btn-outline-brand" type="submit">Set alert</button></div></form>
+            </div>
+        }
+        <div class="detail-facts"><span>✓ No unauthorized scraping</span><span>✓ Live status is disclosed</span></div>
+    </div>
+</section>
+@if (Model.Images.Count > 1)
+{
+    <div class="product-gallery" aria-label="Product images">
+        @foreach (var image in Model.Images.OrderBy(image => image.SortOrder))
+        {
+            <button class="gallery-thumb" type="button" data-product-thumbnail data-image-url="@image.ImageUrl" data-image-alt="@(image.AltText ?? Model.Title)" aria-label="Show image of @Model.Title">
+                <img src="@image.ImageUrl" alt="" loading="lazy" />
+            </button>
+        }
+    </div>
+}
+<section class="info-panel"><h2>About this product</h2><p>Brand: @(Model.Brand?.Name ?? "Not provided") · Category: @(Model.Category?.Name ?? "Not provided")</p><p>Model: @(Model.ModelNumber ?? Model.MerchantSku ?? "Not provided") · Variant: @(Model.Variant ?? "Not specified") · GTIN: @(Model.Gtin ?? "Not provided")</p>
+@if (Model.Specifications.Count > 0)
+{
+    <div class="specification-table-wrap"><table class="specification-table"><thead><tr><th>Specification</th><th>Value</th><th>Source</th></tr></thead><tbody>@foreach (var spec in Model.Specifications.OrderBy(item => item.Name)) { <tr><th>@spec.Name</th><td>@spec.Value</td><td>@(spec.IsVerifiedSource ? "Verified source" : "Source not verified")</td></tr> }</tbody></table></div>
+}
+</section>
+<section class="info-panel price-history-panel"><h2>Verified price history</h2><p class="muted">History is recorded from available verified provider offers only.</p><div id="price-history-chart" data-history-url="@Url.Action("PriceHistory", "Storefront", new { id = Model.Id })" role="img" aria-label="Verified price history chart"><p class="muted">Loading price history…</p></div></section>
+@if (ViewBag.RelatedProducts is IReadOnlyList<Product> relatedProducts && relatedProducts.Count > 0)
+{
+    <section class="catalog-section related-products"><div class="section-heading"><div><p class="eyebrow">MORE TO EXPLORE</p><h2>Similar products</h2></div></div><div class="product-grid">@foreach (var related in relatedProducts) { <article class="product-card"><a class="product-image" asp-action="Details" asp-route-id="@related.Id">@if (!string.IsNullOrWhiteSpace(related.ImageUrl)) { <img src="@related.ImageUrl" alt="@related.Title" loading="lazy" /> } else { <span class="image-placeholder">SC</span> }</a><div class="product-info"><p class="product-brand">@(related.Brand?.Name ?? "SMARTCOMPARE PICK")</p><h3><a asp-action="Details" asp-route-id="@related.Id">@related.Title</a></h3><div class="price-line"><span class="price-label">Reference price</span><strong>₹@related.CurrentPrice.ToString("N0")</strong></div><div class="card-actions"><a class="btn btn-brand" asp-action="Compare" asp-route-id="@related.Id">Compare offers</a><a class="detail-link" asp-action="Details" asp-route-id="@related.Id">Details</a></div></div></article> }</div></section>
+}
+@section Scripts { <script src="~/js/price-history.js" asp-append-version="true"></script> }

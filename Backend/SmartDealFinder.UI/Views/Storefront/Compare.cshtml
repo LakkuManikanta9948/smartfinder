@@ -1,0 +1,47 @@
+@model ComparisonPageViewModel
+@{
+    ViewData["Title"] = $"Compare offers — {Model.ProductTitle}";
+    var bestLivePrice = Model.LowestVerifiedPrice;
+}
+<section class="compare-heading">
+    <a class="back-link" asp-controller="Storefront" asp-action="Details" asp-route-id="@Model.ProductId">← Back to product</a>
+    <p class="eyebrow">PRICE COMPARISON</p>
+    <h1>@Model.ProductTitle</h1>
+    <p class="muted">Offers are ranked only when the data source is verified and the listing is available.</p>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <form asp-controller="UserDashboard" asp-action="SaveComparison" asp-route-productId="@Model.ProductId" method="post" class="save-comparison-form"><button class="btn btn-outline-brand" type="submit">Save this comparison</button></form>
+    }
+</section>
+@if (Model.HasSampleOffers)
+{
+    <div class="sample-notice"><strong>Development sample data.</strong> The sample prices below are illustrative and are not current retailer prices. No purchase links are provided for sample offers.</div>
+}
+@if (Model.Offers.Count == 0)
+{
+    <div class="empty-state"><span class="empty-icon">↔</span><h2>No platform offers available yet</h2><p>We only show prices from authorized provider integrations. Check back when a supported provider is connected.</p></div>
+}
+else
+{
+    @if (bestLivePrice.HasValue)
+    {
+        <div class="comparison-summary"><div><span>Lowest verified available price</span><strong>₹@bestLivePrice.Value.ToString("N2")</strong></div>@if (Model.HighestVerifiedPrice.HasValue) { <div><span>Highest verified available price</span><strong>₹@Model.HighestVerifiedPrice.Value.ToString("N2")</strong></div> }@if (Model.PotentialSavings.HasValue) { <div><span>Potential savings</span><strong>₹@Model.PotentialSavings.Value.ToString("N2")</strong>@if (Model.SavingsPercentage.HasValue) { <small>@Model.SavingsPercentage.Value.ToString("0.0")% price difference</small> }</div> }</div>
+    }
+    else
+    {
+        <div class="sample-notice">No verified live offers are available. Any development samples are shown only to demonstrate the comparison layout.</div>
+    }
+    <div class="offer-list">
+        @foreach (var offer in Model.Offers.OrderByDescending(item => item.IsAvailable && item.IsVerifiedLiveData).ThenBy(item => item.IsVerifiedLiveData ? item.CurrentPrice : decimal.MaxValue))
+        {
+            var isBest = offer.IsVerifiedLiveData && offer.IsAvailable && bestLivePrice.HasValue && offer.CurrentPrice == bestLivePrice.Value;
+            <article class="offer-card @(isBest ? "offer-best" : "")">
+                <div class="offer-platform"><span class="platform-monogram">@offer.PlatformName.Substring(0, 1)</span><div><strong>@offer.PlatformName</strong><small>@(offer.IsVerifiedLiveData ? "Verified provider data" : offer.DataSource)</small></div></div>
+                <div class="offer-product"><strong>@offer.Title</strong><small>@(offer.IsAvailable ? "Availability reported" : "Availability not confirmed")</small></div>
+                <div class="offer-price"><strong>₹@offer.CurrentPrice.ToString("N2")</strong>@if (offer.OriginalPrice.HasValue && offer.OriginalPrice.Value > offer.CurrentPrice && offer.IsVerifiedLiveData) { <small>Verified original price ₹@offer.OriginalPrice.Value.ToString("N2")</small> }</div>
+                <div class="offer-updated"><small>Updated @offer.LastUpdatedAt.ToLocalTime().ToString("dd MMM, HH:mm")</small>@if (isBest) { <span class="best-badge">LOWEST VERIFIED</span> }</div>
+                <div class="offer-action">@if (!string.IsNullOrWhiteSpace(offer.SafeProductUrl) && offer.IsVerifiedLiveData && offer.IsAvailable) { <a href="@offer.SafeProductUrl" target="_blank" rel="noopener noreferrer nofollow" class="btn btn-brand">View retailer ↗</a> } else { <span class="disabled-action">@(offer.IsVerifiedLiveData ? "No safe product link" : "Sample — not for purchase")</span> }</div>
+            </article>
+        }
+    </div>
+}

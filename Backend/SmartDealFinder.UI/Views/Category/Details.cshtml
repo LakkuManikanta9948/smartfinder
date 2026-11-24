@@ -1,0 +1,26 @@
+@using SmartDealFinder.Models
+@model Category
+@{
+    ViewData["Title"] = "Category Details";
+}
+<div class="container mt-4">
+    <h1>Category Details</h1>
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+                <dt class="col-sm-3">Slug</dt>
+                <dd class="col-sm-9">@Model.Slug</dd>
+                <dt class="col-sm-3">Icon Class</dt>
+                <dd class="col-sm-9">@Model.IconClass</dd>
+                <dt class="col-sm-3">ParentId</dt>
+                <dd class="col-sm-9">@(Model.ParentId.HasValue ? Model.ParentId.ToString() : "-")</dd>
+                <dt class="col-sm-3">Active</dt>
+                <dd class="col-sm-9">@(Model.Active ? "Yes" : "No")</dd>
+            </dl>
+        </div>
+    </div>
+    <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@Model.Id">Edit</a>
+    <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+</div>

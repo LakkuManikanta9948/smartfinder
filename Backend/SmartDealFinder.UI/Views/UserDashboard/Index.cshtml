@@ -1,0 +1,36 @@
+@model UserDashboardViewModel
+@{
+    ViewData["Title"] = "Your shopping dashboard";
+}
+<section class="user-dashboard-heading"><p class="eyebrow">YOUR SMARTCOMPARE</p><h1>Welcome back, @ViewBag.DisplayName</h1><p class="muted">Your saved products, price targets, and recent discoveries.</p></section>
+<div class="dashboard-columns">
+    <section class="dashboard-panel"><div class="panel-title"><div><p class="eyebrow">YOUR SHORTLIST</p><h2>Wishlist</h2></div><span class="count-chip">@Model.Wishlist.Count</span></div>
+        @if (Model.Wishlist.Count == 0) { <p class="muted">No saved products yet. Explore the catalog and save products you like.</p> }
+        @foreach (var product in Model.Wishlist)
+        {
+            <div class="dashboard-item"><div><a asp-controller="Storefront" asp-action="Details" asp-route-id="@product.Id">@product.Title</a><small>@(product.HasVerifiedPrice ? $"Best verified: ₹{product.BestAvailablePrice:N0}" : "No verified offer available")</small></div><form asp-action="RemoveFromWishlist" method="post"><input name="productId" value="@product.Id" type="hidden" /><button class="text-action" type="submit">Remove</button></form></div>
+        }
+    </section>
+    <section class="dashboard-panel"><div class="panel-title"><div><p class="eyebrow">PRICE TRACKING</p><h2>Price alerts</h2></div><span class="count-chip">@Model.PriceAlerts.Count</span></div>
+        @if (Model.PriceAlerts.Count == 0) { <p class="muted">Set a target on any product page. We alert only from verified live data.</p> }
+        @foreach (var alert in Model.PriceAlerts)
+        {
+            <div class="dashboard-item"><div><a asp-controller="Storefront" asp-action="Details" asp-route-id="@alert.ProductId">@alert.ProductTitle</a><small>Target ₹@alert.TargetPrice.ToString("N2") · @(alert.IsActive ? "Watching" : "Triggered or paused")</small></div>@if (alert.IsActive) { <form asp-action="RemovePriceAlert" method="post"><input name="alertId" value="@alert.Id" type="hidden" /><button class="text-action" type="submit">Pause</button></form> }</div>
+        }
+    </section>
+    <section class="dashboard-panel"><div class="panel-title"><div><p class="eyebrow">YOUR COMPARISONS</p><h2>Saved comparisons</h2></div><span class="count-chip">@Model.SavedComparisons.Count</span></div>
+        @if (Model.SavedComparisons.Count == 0) { <p class="muted">Save comparisons to find them here later.</p> }
+        @foreach (var comparison in Model.SavedComparisons)
+        {
+            <div class="dashboard-item"><div><a asp-controller="Storefront" asp-action="Compare" asp-route-id="@comparison.ProductId">@comparison.ProductTitle</a><small>Saved @comparison.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</small></div><span class="muted">Compare →</span></div>
+        }
+    </section>
+    <section class="dashboard-panel"><div class="panel-title"><div><p class="eyebrow">RECENTLY VIEWED</p><h2>Your recent finds</h2></div></div>
+        @if (Model.RecentlyViewed.Count == 0) { <p class="muted">Products you view while signed in will appear here.</p> }
+        @foreach (var product in Model.RecentlyViewed) { <div class="dashboard-item"><a asp-controller="Storefront" asp-action="Details" asp-route-id="@product.Id">@product.Title</a><a class="text-action" asp-controller="Storefront" asp-action="Compare" asp-route-id="@product.Id">Compare</a></div> }
+    </section>
+</div>
+<section class="dashboard-panel notification-panel"><p class="eyebrow">ACCOUNT ACTIVITY</p><h2>Notifications</h2>
+    @if (Model.Notifications.Count == 0) { <p class="muted">No notifications yet. Verified price alerts will appear here.</p> }
+    @foreach (var notification in Model.Notifications) { <div class="notification-item"><strong>@notification.Title</strong><p>@notification.Message</p><small>@notification.CreatedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</small></div> }
+</section>

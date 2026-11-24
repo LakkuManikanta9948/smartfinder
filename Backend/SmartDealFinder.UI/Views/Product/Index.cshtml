@@ -1,0 +1,26 @@
+@using SmartDealFinder.Models.DTO
+@model IEnumerable<ProductListItem>
+@{
+    ViewData["Title"] = "Products";
+}
+<div class="container mt-4">
+    <h1>Products</h1>
+    <a class="btn btn-primary mb-3" asp-action="Save">Create New</a>
+    <table class="table table-striped table-bordered">
+        <thead><tr><th>Title</th><th>Category</th><th>Merchant</th><th>Price</th><th>Discount</th><th>Active</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.MerchantName</td>
+                    <td>@item.CurrentPrice.ToString("N2")</td>
+                    <td>@(item.DiscountPercent.HasValue ? item.DiscountPercent.Value.ToString("F2") + "%" : "-")</td>
+                    <td>@(item.Active ? "Yes" : "No")</td>
+                    <td><a class="btn btn-warning btn-sm" asp-action="Save" asp-route-id="@item.Id">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

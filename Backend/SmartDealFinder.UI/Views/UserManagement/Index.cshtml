@@ -1,0 +1,27 @@
+@model UserManagementViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "User management";
+}
+<div class="admin-title"><div><p class="eyebrow">IDENTITY & ACCESS</p><h1>Users and administrators</h1><p class="muted">Create accounts, assign USER or ADMIN roles, and deactivate access without deleting audit history.</p></div></div>
+<section class="admin-panel user-create-panel"><div><p class="eyebrow">NEW ACCOUNT</p><h2>Provision a user or admin</h2><p>The person must verify their phone number using OTP before their account can be used.</p></div>
+    <form asp-action="Create" method="post" class="user-create-form">
+        <div><label for="create-phone">Phone number (E.164)</label><input id="create-phone" name="PhoneNumber" class="form-control" required placeholder="+14155552671" /></div>
+        <div><label for="create-name">Display name</label><input id="create-name" name="DisplayName" class="form-control" required maxlength="100" /></div>
+        <div><label for="create-role">Role</label><select id="create-role" name="Role" class="form-select"><option value="USER">USER</option><option value="ADMIN">ADMIN</option></select></div>
+        <button class="btn btn-brand" type="submit">Create account</button>
+    </form>
+</section>
+<section class="admin-panel user-list-panel"><div class="user-list-heading"><div><p class="eyebrow">ACCOUNTS</p><h2>Manage access</h2></div><form asp-action="Index" method="get" class="user-search-form"><input name="search" value="@Model.Search" class="form-control" placeholder="Search phone or name" /><button class="btn btn-outline-brand" type="submit">Search</button></form></div>
+    <div class="permission-table-wrap"><table class="permission-table user-management-table"><thead><tr><th>Account</th><th>Phone</th><th>Role</th><th>Status</th><th>Update role</th><th>Access</th></tr></thead><tbody>
+    @foreach (var user in Model.Users)
+    {
+        <tr><td>@user.DisplayName</td><td>@user.PhoneNumber</td><td><span class="role-pill">@user.Role</span></td><td>@(user.IsActive ? "Active" : "Inactive")</td>
+            <td><form asp-action="UpdateRole" method="post" class="inline-admin-form"><input type="hidden" name="userId" value="@user.Id" /><select name="role" class="form-select"><option value="USER" selected="@(user.Role == "USER" ? "selected" : null)">USER</option><option value="ADMIN" selected="@(user.Role == "ADMIN" ? "selected" : null)">ADMIN</option></select><button class="btn btn-outline-brand" type="submit">Save</button></form></td>
+            <td><form asp-action="UpdateStatus" method="post"><input type="hidden" name="userId" value="@user.Id" /><input type="hidden" name="isActive" value="@(!user.IsActive)" /><button class="text-action" type="submit">@(user.IsActive ? "Deactivate" : "Activate")</button></form></td>
+        </tr>
+    }
+    </tbody></table></div>
+    @if (Model.Users.Count == 0) { <p class="muted">No matching accounts.</p> }
+    @if (Model.Users.Count == 100) { <p class="muted">Showing the first 100 matches. Refine the search to find other accounts.</p> }
+</section>

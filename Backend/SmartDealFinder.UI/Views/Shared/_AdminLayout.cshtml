@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — SmartCompare Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-users.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/premium.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+    <header class="admin-topbar"><a class="brand-lockup" asp-controller="AdminDashboard" asp-action="Index"><span class="brand-mark">SC</span><span>SmartCompare <small>CONTROL CENTER</small></span></a><nav aria-label="Admin navigation"><a asp-controller="AdminDashboard" asp-action="Index">Overview</a><a asp-controller="UserManagement" asp-action="Index">Users</a><a asp-controller="PermissionAdmin" asp-action="Index">User permissions</a><a asp-controller="RolePermissionAdmin" asp-action="Index">Role permissions</a><a asp-controller="Home" asp-action="Index">Storefront ↗</a></nav><button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme" aria-pressed="false"><span data-theme-icon aria-hidden="true">◐</span></button><form asp-controller="Account" asp-action="Logout" method="post"><button type="submit" class="btn btn-sm btn-outline-light">Sign out</button></form></header>
+    <main class="admin-main">
+        @if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
+        @if (TempData["Success"] is string success) { <div class="alert alert-success">@success</div> }
+        @RenderBody()
+    </main>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/premium.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

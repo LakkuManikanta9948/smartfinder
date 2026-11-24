@@ -1,0 +1,91 @@
+@model CatalogPageViewModel
+@{
+    ViewData["Title"] = "Compare smarter. Buy better.";
+}
+<section class="hero-panel">
+    <div class="hero-copy">
+        <p class="eyebrow">A CLEARER WAY TO SHOP</p>
+        <h1>Compare smarter.<br /><span>Shop better.</span></h1>
+        <p>Discover the right products, compare verified offers across supported platforms, and shop with confidence.</p>
+        <form asp-controller="Home" asp-action="Index" method="get" class="hero-search" role="search">
+            <label class="visually-hidden" for="query">Search products, brands, or models</label>
+            <span class="search-mark" aria-hidden="true">⌕</span>
+            <div class="search-autocomplete"><input id="query" name="query" value="@Model.Query" placeholder="Search products, brands, or models" autocomplete="off" aria-autocomplete="list" aria-controls="search-suggestions" /><div id="search-suggestions" class="suggestion-list" role="listbox" hidden></div></div>
+            <button type="submit">Search <span aria-hidden="true">→</span></button>
+        </form>
+        <div class="hero-meta"><span class="status-dot"></span> Verified offers are clearly marked. Development examples are never presented as live prices.</div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="hero-product"><span>SC</span><strong>SMART<br />COMPARE</strong><small>Compare with confidence</small></div><div class="floating-tag tag-left">✓ Verified data</div><div class="floating-tag tag-right">↗ Better decisions</div></div>
+</section>
+<section class="catalog-section category-section" id="categories" aria-labelledby="category-heading">
+    <div class="section-heading"><div><p class="eyebrow">FIND YOUR NEXT FAVORITE</p><h2 id="category-heading">Explore categories</h2><p class="muted">Browse the categories currently in our catalog.</p></div></div>
+    @if (Model.Categories.Count > 0)
+    {
+        <div class="category-grid">
+            @foreach (var category in Model.Categories)
+            {
+                <a class="category-card" asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.Id"><span class="category-icon" aria-hidden="true">↗</span><strong>@category.Name</strong><small>Explore products</small></a>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="muted">Categories will appear here as the catalog grows.</p>
+    }
+</section>
+<section class="catalog-section" id="products">
+    <div class="section-heading" id="compare"><div><p class="eyebrow">THE SMARTER SHORTLIST</p><h2>@(string.IsNullOrWhiteSpace(Model.Query) ? "Explore products" : $"Results for “{Model.Query}”")</h2><p class="muted">@Model.TotalItems product@(Model.TotalItems == 1 ? "" : "s") in the catalog</p></div><span class="trust-pill">Prices verified before we call them deals</span></div>
+    <form asp-controller="Home" asp-action="Index" method="get" class="filter-bar">
+        <input type="hidden" name="query" value="@Model.Query" />
+        <select name="categoryId" class="form-select" aria-label="Category"><option value="">All categories</option>@foreach (var category in Model.Categories) { <option value="@category.Id" selected="@(Model.CategoryId == category.Id ? "selected" : null)">@category.Name</option> }</select>
+        <select name="brandId" class="form-select" aria-label="Brand"><option value="">All brands</option>@foreach (var brand in Model.Brands) { <option value="@brand.Id" selected="@(Model.BrandId == brand.Id ? "selected" : null)">@brand.Name</option> }</select>
+        <select name="platformId" class="form-select" aria-label="Shopping platform"><option value="">All platforms</option>@foreach (var platform in Model.Platforms) { <option value="@platform.Id" selected="@(Model.PlatformId == platform.Id ? "selected" : null)">@platform.Name</option> }</select>
+        <input name="minimumPrice" value="@Model.MinimumPrice" type="number" min="0" step="0.01" class="form-control" placeholder="Min price" aria-label="Minimum price" />
+        <input name="maximumPrice" value="@Model.MaximumPrice" type="number" min="0" step="0.01" class="form-control" placeholder="Max price" aria-label="Maximum price" />
+        <select name="minimumRating" class="form-select" aria-label="Minimum rating"><option value="">Any rating</option>@for (var rating = 3; rating <= 5; rating++) { <option value="@rating" selected="@(Model.MinimumRating == rating ? "selected" : null)">@rating+ stars</option> }</select>
+        <select name="inStock" class="form-select" aria-label="Availability"><option value="">Any availability</option><option value="true" selected="@(Model.InStock == true ? "selected" : null)">In stock</option></select>
+        <select name="sort" class="form-select" aria-label="Sort products"><option value="popular" selected="@(Model.Sort == "popular" ? "selected" : null)">Featured</option><option value="price-low" selected="@(Model.Sort == "price-low" ? "selected" : null)">Price: low to high</option><option value="price-high" selected="@(Model.Sort == "price-high" ? "selected" : null)">Price: high to low</option><option value="highest-rated" selected="@(Model.Sort == "highest-rated" ? "selected" : null)">Highest rated</option><option value="best-deal" selected="@(Model.Sort == "best-deal" ? "selected" : null)">Best verified deal</option><option value="newest" selected="@(Model.Sort == "newest" ? "selected" : null)">Newest</option></select>
+        <button class="btn btn-filter" type="submit">Apply filters</button>
+    </form>
+    @if (Model.Products.Count == 0)
+    {
+        <div class="empty-state"><span class="empty-icon">⌕</span><h3>No matching products yet</h3><p>Try a different search or remove one of the filters.</p><a asp-controller="Home" asp-action="Index" class="btn btn-brand">Browse all products</a></div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var product in Model.Products)
+            {
+                <article class="product-card">
+                    <a class="product-image" asp-controller="Storefront" asp-action="Details" asp-route-id="@product.Id" aria-label="View @product.Title details">
+                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl)) { <img src="@product.ImageUrl" alt="@product.Title" loading="lazy" /> } else { <span class="image-placeholder">SC</span> }
+                        @if (!string.IsNullOrWhiteSpace(product.CategoryName)) { <span class="category-chip">@product.CategoryName</span> }
+                    </a>
+                    <div class="product-info"><p class="product-brand">@(product.BrandName ?? "SMARTCOMPARE PICK")</p><h3><a asp-controller="Storefront" asp-action="Details" asp-route-id="@product.Id">@product.Title</a></h3>
+                        @if (product.HasVerifiedPrice) { <div class="price-line"><span class="price-label">Best verified offer</span><strong>₹@product.BestAvailablePrice.ToString("N0")</strong></div> }
+                        else { <div class="price-line"><span class="price-label">Reference price</span><strong>₹@product.StartingPrice.ToString("N0")</strong></div><p class="price-disclaimer">Not a live retailer quote</p> }
+                        <div class="card-actions"><a class="btn btn-brand" asp-controller="Storefront" asp-action="Compare" asp-route-id="@product.Id">Compare offers <span aria-hidden="true">→</span></a><a class="detail-link" asp-controller="Storefront" asp-action="Details" asp-route-id="@product.Id">Details</a></div>
+                    </div>
+                </article>
+            }
+        </div>
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="pagination-row" aria-label="Catalog pages">
+                @if (Model.Page > 1) { <a asp-controller="Home" asp-action="Index" asp-route-query="@Model.Query" asp-route-categoryId="@Model.CategoryId" asp-route-minimumPrice="@Model.MinimumPrice" asp-route-maximumPrice="@Model.MaximumPrice" asp-route-sort="@Model.Sort" asp-route-brandId="@Model.BrandId" asp-route-platformId="@Model.PlatformId" asp-route-minimumRating="@Model.MinimumRating" asp-route-inStock="@Model.InStock" asp-route-page="@(Model.Page - 1)">← Previous</a> }
+                <span>Page @Model.Page of @Model.TotalPages</span>
+                @if (Model.Page < Model.TotalPages) { <a asp-controller="Home" asp-action="Index" asp-route-query="@Model.Query" asp-route-categoryId="@Model.CategoryId" asp-route-minimumPrice="@Model.MinimumPrice" asp-route-maximumPrice="@Model.MaximumPrice" asp-route-sort="@Model.Sort" asp-route-brandId="@Model.BrandId" asp-route-platformId="@Model.PlatformId" asp-route-minimumRating="@Model.MinimumRating" asp-route-inStock="@Model.InStock" asp-route-page="@(Model.Page + 1)">Next →</a> }
+            </nav>
+        }
+    }
+</section>
+<section class="catalog-section why-section" aria-labelledby="why-heading">
+    <div class="section-heading"><div><p class="eyebrow">SHOP WITH CLARITY</p><h2 id="why-heading">Better choices, built on transparency</h2><p class="muted">Compare the facts, understand the source, then choose the offer that works for you.</p></div></div>
+    <div class="benefit-grid">
+        <article class="benefit-card"><span class="benefit-icon" aria-hidden="true">01</span><h3>One clear shortlist</h3><p>Search products and narrow results using categories, brands, availability, and price filters.</p></article>
+        <article class="benefit-card"><span class="benefit-icon" aria-hidden="true">02</span><h3>Offers with context</h3><p>Verified provider data is distinguished from development examples and catalog reference prices.</p></article>
+        <article class="benefit-card"><span class="benefit-icon" aria-hidden="true">03</span><h3>You stay in control</h3><p>Review the retailer listing and its latest update before following a verified purchase link.</p></article>
+    </div>
+</section>
+
+

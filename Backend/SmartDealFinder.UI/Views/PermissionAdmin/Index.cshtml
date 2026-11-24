@@ -1,0 +1,22 @@
+@model PermissionEditorViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Permission management";
+}
+<div class="admin-title"><div><p class="eyebrow">SECURITY & ACCESS</p><h1>Permission management</h1><p class="muted">Grant access per account. Unchecked permissions are denied by default.</p></div></div>
+@if (TempData["Success"] is string success) { <div class="alert alert-success">@success</div> }
+<div class="admin-panel permission-picker"><form asp-action="Index" method="get"><label class="form-label" for="userId">Select an account</label><select class="form-select" id="userId" name="userId" onchange="this.form.submit()"><option value="">Choose a user or admin</option>@foreach (var account in Model.Users) { <option value="@account.Id" selected="@(Model.TargetUserId == account.Id ? "selected" : null)">@account.Label</option> }</select></form><p class="muted mb-0">ORGADMIN accounts are excluded and always retain unrestricted access.</p></div>
+@if (!string.IsNullOrWhiteSpace(Model.TargetUserId))
+{
+    <form asp-action="Save" method="post" class="admin-panel">
+        <input asp-for="TargetUserId" type="hidden" />
+        <div class="permission-header"><div><p class="eyebrow">ACCESS MATRIX</p><h2>@Model.TargetLabel</h2></div><button class="btn btn-brand" type="submit">Save permissions</button></div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="permission-table-wrap"><table class="permission-table"><thead><tr><th>Application module</th><th>Permission code</th><th>Allow</th></tr></thead><tbody>
+        @for (var index = 0; index < Model.Permissions.Count; index++)
+        {
+            <tr><td>@Model.Permissions[index].Label.Split(' ')[0]</td><td><code>@Model.Permissions[index].Code</code></td><td><input asp-for="Permissions[index].IsGranted" class="form-check-input" aria-label="Allow @Model.Permissions[index].Code" /><input asp-for="Permissions[index].Code" type="hidden" /><input asp-for="Permissions[index].Label" type="hidden" /></td></tr>
+        }
+        </tbody></table></div>
+    </form>
+}

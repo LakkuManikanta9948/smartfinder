@@ -1,0 +1,51 @@
+@model AdminDashboardViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Overview";
+    var maxRegistrations = Math.Max(1, Model.RegistrationAnalytics.Max(day => day.Registrations));
+}
+<div class="admin-title"><div><p class="eyebrow">CONTROL CENTER</p><h1>Overview</h1><p class="muted">A live snapshot of your SmartCompare workspace.</p></div><div class="admin-title-actions"><a class="btn btn-outline-brand" asp-controller="UserManagement" asp-action="Index">Manage users</a><a class="btn btn-brand" asp-controller="PermissionAdmin" asp-action="Index">Manage permissions →</a></div></div>
+<div class="stats-grid">
+    <article class="stat-card"><span>Total users</span><strong>@Model.TotalUsers</strong><small>@Model.ActiveUsers active · @Model.InactiveUsers inactive</small></article>
+    <article class="stat-card"><span>Administrators</span><strong>@Model.TotalAdmins</strong><small>Role assignments</small></article>
+    <article class="stat-card"><span>Products</span><strong>@Model.TotalProducts</strong><small>Active catalog items</small></article>
+    <article class="stat-card"><span>Categories</span><strong>@Model.TotalCategories</strong><small>Catalog organization</small></article>
+    <article class="stat-card"><span>Saved comparisons</span><strong>@Model.TotalComparisons</strong><small>User comparison history</small></article>
+    <article class="stat-card"><span>Platform integrations</span><strong>@Model.EnabledPlatforms / @Model.TotalPlatforms</strong><small>Enabled providers</small></article>
+</div>
+<div class="dashboard-columns admin-dashboard-panels">
+    <section class="dashboard-panel" aria-labelledby="registrations-heading">
+        <div class="panel-title"><div><p class="eyebrow">NEW ACCOUNTS</p><h2 id="registrations-heading">Registration analytics</h2></div><span class="count-chip">Last 7 days</span></div>
+        <div class="registration-chart" role="img" aria-label="Daily new user registrations for the last seven days">
+            @foreach (var day in Model.RegistrationAnalytics)
+            {
+                var barHeight = Math.Max(4, day.Registrations * 100 / maxRegistrations);
+                <div class="registration-day" title="@day.Date.ToString("MMM d"): @day.Registrations registrations">
+                    <strong>@day.Registrations</strong>
+                    <span class="registration-bar" style="height: @barHeight%"></span>
+                    <small>@day.Date.ToString("ddd")</small>
+                </div>
+            }
+        </div>
+    </section>
+    <section class="dashboard-panel" aria-labelledby="activity-heading">
+        <div class="panel-title"><div><p class="eyebrow">AUDIT TRAIL</p><h2 id="activity-heading">Recent admin activity</h2></div><span class="count-chip">@Model.RecentActivities.Count events</span></div>
+        @if (Model.RecentActivities.Count == 0)
+        {
+            <p class="muted admin-empty-activity">No administrative activity has been recorded yet.</p>
+        }
+        else
+        {
+            <div class="admin-activity-list">
+                @foreach (var activity in Model.RecentActivities)
+                {
+                    <article class="admin-activity-item">
+                        <div><strong>@activity.Action</strong><p>@activity.Subject</p><small>by @activity.ActorName</small></div>
+                        <time datetime="@activity.CreatedAt.ToString("O")">@activity.CreatedAt.ToString("MMM d, HH:mm") UTC</time>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+<section class="admin-panel"><div><p class="eyebrow">ACCESS CONTROL</p><h2>Permissions are deny-by-default</h2><p>Only explicitly granted user or role permissions are honored. ORGADMIN access is provisioned out-of-band and cannot be changed here.</p></div><a class="btn btn-outline-brand" asp-controller="PermissionAdmin" asp-action="Index">Open permission manager</a></section>
