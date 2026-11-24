@@ -42,3 +42,4 @@ dotnet test Backend\SmartCompare.Tests\SmartCompare.Tests.csproj
 ```
 
 The tests cover OTP expiry, one-time use, throttling/attempt limits, and safe retailer-link validation.
+# smartfinder
