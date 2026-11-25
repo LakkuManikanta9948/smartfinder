@@ -56,7 +56,7 @@ public sealed class AccountController(
             SetGoogleLoginViewData();
             return View("Login", input);
         }
-
+        // Retrieve external login info to get the display name if available
         var externalInfo = await signInManager.GetExternalLoginInfoAsync();
         var displayName = externalInfo?.LoginProvider == "Google"
             ? externalInfo.Principal.FindFirstValue(ClaimTypes.Name) ?? externalInfo.Principal.Identity?.Name ?? input.DisplayName
